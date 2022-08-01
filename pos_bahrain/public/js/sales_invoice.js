@@ -141,6 +141,9 @@ frappe.ui.form.on('Sales Invoice', {
     if (cur_frm.doc.is_return) {
       cur_frm.set_value("main_invoice", "");
       cur_frm.set_value("return_si_no", "");
+      cur_frm.set_value("credit_note_invoice", "");
+      cur_frm.set_value("main_si", "");
+      cur_frm.set_value("credit_note_balance", cur_frm.doc.grand_total);
      }
   }
 })
@@ -155,3 +158,14 @@ cur_frm.fields_dict.return_si_no.get_query = function(doc) {
 		}
 	}
 }
+
+frappe.ui.form.on('Sales Invoice',"validate", function(){
+  if (cur_frm.doc.advances){
+  for (var i =0; i < cur_frm.doc.advances.length; i++){
+   if (cur_frm.doc.items[i].reference_type = "Sales Invoice") {  
+  cur_frm.doc.credit_note_invoice=cur_frm.doc.advances[i].reference_name
+  }
+   }
+   }
+  })
+  
