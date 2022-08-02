@@ -168,4 +168,18 @@ frappe.ui.form.on('Sales Invoice',"validate", function(){
    }
    }
   })
-  
+
+ frappe.ui.form.on("Sales Invoice", "ignore_payments_for_return", function(frm, doctype, name){
+    if (frm.doc.is_return && frm.doc.ignore_payments_for_return){
+    cur_frm.clear_table("payments"); 
+    frm.doc.is_pos = 0
+    cur_frm.refresh_fields();
+    }
+    });
+  frappe.ui.form.on("Sales Invoice", "validate", function(frm, doctype, name){
+      if (frm.doc.is_return && frm.doc.ignore_payments_for_return){
+      cur_frm.clear_table("payments"); 
+      frm.doc.is_pos = 0
+      cur_frm.refresh_fields();
+      }
+      });

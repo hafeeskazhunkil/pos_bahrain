@@ -195,7 +195,7 @@ def get_si_credit_notes(party_type, party, limit=None, condition=None):
 
 	unallocated_payment_entries = frappe.db.sql("""
 			select "Sales Invoice" as reference_type, name as reference_name, posting_date,
-			remarks, abs(grand_total) as amount
+			remarks, abs(credit_note_balance) as amount
 			from `tabSales Invoice`
 			where
 				customer = %s 
