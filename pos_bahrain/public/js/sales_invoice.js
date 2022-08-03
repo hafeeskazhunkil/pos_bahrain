@@ -183,3 +183,28 @@ frappe.ui.form.on('Sales Invoice',"validate", function(){
       cur_frm.refresh_fields();
       }
       });
+      frappe.ui.form.on("Sales Invoice Item", "qty", function(frm, cdt, cdn) {
+        $.each(frm.doc.advances || [], function(i, d) {
+            d.allocated_amount=cur_frm.doc.grand_total;
+        });
+        refresh_field("advances");
+        })
+        frappe.ui.form.on("Sales Invoice Item", "rate", function(frm, cdt, cdn) {
+        $.each(frm.doc.advances || [], function(i, d) {
+            d.allocated_amount=cur_frm.doc.grand_total;
+        });
+        refresh_field("advances");
+        })
+        frappe.ui.form.on("Sales Invoice", "validate", function(frm, cdt, cdn) {
+        $.each(frm.doc.advances || [], function(i, d) {
+            if(cur_frm.doc.grand_total<=d.advance_amount){
+            d.allocated_amount=cur_frm.doc.grand_total;
+            }
+            else{
+               d.allocated_amount=d.advance_amount;
+            }
+        });
+        refresh_field("advances");
+        
+        })
+      

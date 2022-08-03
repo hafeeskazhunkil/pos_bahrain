@@ -449,16 +449,18 @@ def update_credit_note(doc, cancel=False):
         cn_inv = frappe.get_doc('Sales Invoice',doc.name)
         if doc.is_return :
             doc.credit_note_balance = doc.grand_total
-        if doc.credit_note_invoice:
+        if not doc.is_return and doc.credit_note_invoice:
             cn_balance = frappe.db.get_value("Sales Invoice",doc.credit_note_invoice,"credit_note_balance")
             frappe.db.set_value("Sales Invoice", doc.credit_note_invoice, "credit_note_balance", cn_balance+doc.total_advance)
             frappe.db.set_value("Sales Invoice", doc.main_si, "outstanding_amount", 0)
+            frappe.db.set_value("Sales Invoice", doc.credit_note_invoice, "outstanding_amount", 0)
             frappe.db.set_value("Sales Invoice", doc.name, "outstanding_amount", 0)
         #     doc.write_off_amount = doc.total_advance
         #     frappe.db.set_value("Sales Invoice", doc.name, "write_off_amount", doc.total_advance)
             frappe.db.set_value("Sales Invoice", doc.name, "base_paid_amount", doc.total_advance)
             frappe.db.set_value("Sales Invoice", doc.name, "paid_amount", doc.total_advance)
             frappe.db.set_value("Sales Invoice", doc.name, "status", "Paid")
+            frappe.db.set_value("Sales Invoice", doc.credit_note_invoice, "status", "Return")
 
         gl_no = frappe.db.sql(
             """
