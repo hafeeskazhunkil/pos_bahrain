@@ -310,6 +310,6 @@ def update_against_document_in_jv_ov(self):
             reconcile_against_document(pe_jv_lst)
         if si_lst:
             from erpnext.accounts.doctype.payment_reconciliation.payment_reconciliation import (reconcile_dr_cr_note,)
-            reconcile_dr_cr_note(si_lst, self.company)
+            # reconcile_dr_cr_note(si_lst, self.company)
             
         
