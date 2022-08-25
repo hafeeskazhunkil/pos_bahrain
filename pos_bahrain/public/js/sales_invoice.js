@@ -158,11 +158,13 @@ cur_frm.fields_dict.return_si_no.get_query = function(doc) {
 		}
 	}
 }
-frappe.ui.form.on('Sales Invoice Advance',"refresh", function(){
+frappe.ui.form.on('Sales Invoice Advance',"advances_add", function(){
   if (cur_frm.doc.advances){
   for (var i =0; i < cur_frm.doc.advances.length; i++){
    if (cur_frm.doc.items[i].reference_type = "Sales Invoice") {  
   cur_frm.doc.credit_note_invoice=cur_frm.doc.advances[i].reference_name
+  // var main_si = frappe.db.get_value("Sales Invoice",{"name":cur_frm.doc.advances[i].reference_name},"return_against")
+  // cur_frm.doc.main_si =main_si.return_against
   }
    }
    }
@@ -170,8 +172,10 @@ frappe.ui.form.on('Sales Invoice Advance',"refresh", function(){
 frappe.ui.form.on('Sales Invoice',"validate", function(){
   if (cur_frm.doc.advances){
   for (var i =0; i < cur_frm.doc.advances.length; i++){
+  // var main_si = frappe.db.get_value("Sales Invoice",{"name":cur_frm.doc.advances[i].reference_name},"return_against")
    if (cur_frm.doc.items[i].reference_type = "Sales Invoice") {  
   cur_frm.doc.credit_note_invoice=cur_frm.doc.advances[i].reference_name
+  // cur_frm.doc.main_si =main_si.return_against
   }
    }
    }
