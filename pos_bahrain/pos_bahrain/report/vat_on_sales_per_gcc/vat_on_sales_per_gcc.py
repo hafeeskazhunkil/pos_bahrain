@@ -3,11 +3,11 @@
 
 from __future__ import unicode_literals
 import json
-import frappe
-from erpnext.controllers.taxes_and_totals import get_itemised_tax_breakup_data
+import frappe, erpnext
+#from erpnext.controllers.taxes_and_totals import get_itemised_tax_breakup_data
 from functools import partial
 from toolz import compose, concatv, pluck, merge, groupby, concat, excepts, first
-
+from frappe.utils import cint, flt, round_based_on_smallest_currency_fraction
 from pos_bahrain.utils import pick
 from pos_bahrain.utils.report import make_column
 
@@ -283,3 +283,54 @@ def _get_child_table_rows(query, docs):
             query, values={"docnames": [x.get("name") for x in docs]}, as_dict=1,
         ),
     )
+
+# for company currency amout and tax
+@erpnext.allow_regional
+def get_itemised_tax_breakup_data(doc):
+    itemised_tax = get_itemised_tax(doc.taxes)
+
+    itemised_taxable_amount = get_itemised_taxable_amount(doc.items)
+
+    return itemised_tax, itemised_taxable_amount
+
+
+def get_itemised_tax(taxes, with_tax_account=False):
+    itemised_tax = {}
+    for tax in taxes:
+        if getattr(tax, "category", None) and tax.category == "Valuation":
+            continue
+
+        item_tax_map = json.loads(tax.item_wise_tax_detail) if tax.item_wise_tax_detail else {}
+        if item_tax_map:
+            for item_code, tax_data in item_tax_map.items():
+                itemised_tax.setdefault(item_code, frappe._dict())
+
+                tax_rate = 0.0
+                tax_amount = 0.0
+
+                if isinstance(tax_data, list):
+                    tax_rate = flt(tax_data[0])
+                    tax_amount = flt(tax_data[1])
+                else:
+                    tax_rate = flt(tax_data)
+
+                itemised_tax[item_code][tax.description] = frappe._dict(
+                    dict(tax_rate=tax_rate, tax_amount=tax_amount)
+                )
+
+                if with_tax_account:
+                    itemised_tax[item_code][tax.description].tax_account = tax.account_head
+
+    return itemised_tax
+
+
+def get_itemised_taxable_amount(items):
+    itemised_taxable_amount = frappe._dict()
+    for item in items:
+        item_code = item.item_code or item.item_name
+        itemised_taxable_amount.setdefault(item_code, 0)
+        # itemised_taxable_amount[item_code] += item.base_net_amount
+        if item.base_net_amount is not None:
+            itemised_taxable_amount[item_code] += item.base_net_amount
+
+    return itemised_taxable_amount
