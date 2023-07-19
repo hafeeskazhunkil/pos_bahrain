@@ -331,6 +331,8 @@ def get_itemised_taxable_amount(items):
         itemised_taxable_amount.setdefault(item_code, 0)
         # itemised_taxable_amount[item_code] += item.base_net_amount
         if item.base_net_amount is not None:
-            itemised_taxable_amount[item_code] += item.base_net_amount
+            itemised_taxable_amount[item_code] += item.base_net_amount 
+        if item.base_net_amount is  None:
+            itemised_taxable_amount[item_code] += item.net_amount 
 
     return itemised_taxable_amount
